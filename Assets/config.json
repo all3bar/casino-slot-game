@@ -1,0 +1,66 @@
+{
+  "game": {
+    "name": "Casino Slot Game",
+    "version": "1.0.0",
+    "gameId": "CAS001",
+    "manufacturer": "CasinoTech",
+    "modelName": "ProSlot5000",
+    "serialNumber": "SN000001",
+    "assetNumber": "001"
+  },
+  "sas": {
+    "address": 1,
+    "pollingIntervalMs": 20,
+    "portName": "COM1",
+    "baudRate": 19200,
+    "parity": "None",
+    "dataBits": 8,
+    "stopBits": 1
+  },
+  "billAcceptor": {
+    "portName": "COM2",
+    "baudRate": 9600,
+    "enabled": true,
+    "acceptedDenominations": [100, 500, 1000, 2000, 5000, 10000],
+    "currency": "USD"
+  },
+  "machine": {
+    "denomination": 1,
+    "maxBetPerLine": 10,
+    "defaultBetPerLine": 1,
+    "numReels": 5,
+    "numRows": 3,
+    "numPaylines": 20,
+    "defaultLines": 20,
+    "currencySymbol": "$",
+    "creditsPerUnit": 100
+  },
+  "jackpot": {
+    "enabled": true,
+    "seedAmount": 1000,
+    "contributionRate": 0.01,
+    "triggerProbability": 0.00002
+  },
+  "rtp": {
+    "target": 96.0,
+    "minimum": 85.0,
+    "maximum": 98.0
+  },
+  "security": {
+    "operatorPinLength": 4,
+    "sessionTimeoutMinutes": 30,
+    "requireAuthForMeters": true
+  },
+  "persistence": {
+    "saveIntervalSeconds": 60,
+    "backupCount": 3
+  },
+  "features": {
+    "freeSpinsEnabled": true,
+    "bonusGameEnabled": true,
+    "progressiveJackpotEnabled": true,
+    "wildSymbolEnabled": true,
+    "scatterSymbolEnabled": true,
+    "multiplierEnabled": true
+  }
+}
