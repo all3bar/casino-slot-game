@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+    <PackageReference Include="xunit" Version="2.4.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="3.2.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../Assets/Scripts/Core/RNG.cs" />
+    <Compile Include="../Assets/Scripts/Core/Symbol.cs" />
+    <Compile Include="../Assets/Scripts/Core/Reel.cs" />
+    <Compile Include="../Assets/Scripts/Core/PaylineManager.cs" />
+    <Compile Include="../Assets/Scripts/Core/SlotMachine.cs" />
+    <Compile Include="../Assets/Scripts/Core/GameManager.cs" />
+    <Compile Include="../Assets/Scripts/Accounting/MeterManager.cs" />
+    <Compile Include="../Assets/Scripts/Accounting/EventLogger.cs" />
+    <Compile Include="../Assets/Scripts/Accounting/GameHistory.cs" />
+    <Compile Include="../Assets/Scripts/Accounting/PersistenceManager.cs" />
+    <Compile Include="../Assets/Scripts/SAS/SASCommands.cs" />
+    <Compile Include="../Assets/Scripts/SAS/SASProtocol.cs" />
+    <Compile Include="../Assets/Scripts/SAS/SASExceptions.cs" />
+    <Compile Include="../Assets/Scripts/SAS/SASMeterManager.cs" />
+    <Compile Include="../Assets/Scripts/SAS/SASCommunicator.cs" />
+    <Compile Include="../Assets/Scripts/Hardware/SerialCommunication.cs" />
+    <Compile Include="../Assets/Scripts/Hardware/BillAcceptor.cs" />
+    <Compile Include="../Assets/Scripts/Hardware/PulseController.cs" />
+    <Compile Include="../Assets/Scripts/Hardware/ID003Protocol.cs" />
+    <Compile Include="../Assets/Scripts/Features/FreeSpinsManager.cs" />
+    <Compile Include="../Assets/Scripts/Features/BonusGameManager.cs" />
+    <Compile Include="../Assets/Scripts/Features/JackpotManager.cs" />
+    <Compile Include="../Assets/Scripts/UI/AnimationController.cs" />
+    <Compile Include="../Assets/Scripts/UI/PaytableUI.cs" />
+    <Compile Include="../Assets/Scripts/UI/MainGameUI.cs" />
+    <Compile Include="../Assets/Scripts/Input/SlotAction.cs" />
+    <Compile Include="../Assets/Scripts/Input/IInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/KeyboardInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/JoystickInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/InputManager.cs" />
+  </ItemGroup>
+
+</Project>
