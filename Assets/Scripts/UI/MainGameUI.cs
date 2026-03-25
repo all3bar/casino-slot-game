@@ -148,6 +148,16 @@ namespace CasinoSlot.UI
         }
 
         /// <summary>
+        /// Called when the Operator Menu button is pressed from any input device.
+        /// The actual authentication is handled by <see cref="OperatorUI"/>.
+        /// </summary>
+        public void OnOperatorMenuRequested()
+        {
+            EnqueueNotification(new UINotification("Operator menu requested", "info"));
+            RefreshDisplay();
+        }
+
+        /// <summary>
         /// Acknowledges the current result display and returns to Idle.
         /// </summary>
         public void AcknowledgeResult()

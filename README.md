@@ -13,7 +13,8 @@ Juego de slots profesional desarrollado en C# (.NET / Unity), con soporte comple
 - **Sistema de accounting** con contadores persistentes y checksums SHA-256
 - **Features avanzados**: Free Spins, Bonus Game (pick-em), Wild/Scatter, Jackpot Progresivo
 - **Panel de operador** con autenticación PIN
-- **63 unit tests** que validan la lógica del juego, protocolo SAS y hardware
+- **Sistema de entrada configurable**: teclado USB, joystick / botonera HID — bindings configurables por JSON
+- **109 unit tests** que validan la lógica del juego, protocolo SAS, hardware y capa de entrada
 
 ---
 
@@ -42,6 +43,12 @@ casino-slot-game/
 │       │   ├── BillAcceptor.cs            # Controlador de validador de billetes
 │       │   ├── ID003Protocol.cs           # Protocolo ID-003 (RS-232)
 │       │   └── PulseController.cs         # Coin-in/Hopper pulses + HopperController
+│       ├── Input/                         # ← NUEVO — Entrada de dispositivos
+│       │   ├── SlotAction.cs              # Enum de todas las acciones del jugador
+│       │   ├── IInputProvider.cs          # Interfaz para fuentes de entrada
+│       │   ├── KeyboardInputProvider.cs   # Teclado USB (configurable)
+│       │   ├── JoystickInputProvider.cs   # Joystick / botonera HID (configurable)
+│       │   └── InputManager.cs            # Agrega proveedores → MainGameUI
 │       ├── Accounting/
 │       │   ├── MeterManager.cs            # Contadores persistentes (thread-safe)
 │       │   ├── EventLogger.cs             # Log de auditoría con tipos de evento
@@ -64,8 +71,10 @@ casino-slot-game/
     │   └── SlotMachineTests.cs
     ├── SAS/
     │   └── SASProtocolTests.cs
-    └── Hardware/
-        └── HardwareTests.cs
+    ├── Hardware/
+    │   └── HardwareTests.cs
+    └── Input/
+        └── InputTests.cs              # 46 tests de teclado, joystick e InputManager
 ```
 
 ---
@@ -85,7 +94,91 @@ cd Tests
 dotnet test
 ```
 
-Resultado esperado: **63 tests pasados, 0 fallidos**.
+Resultado esperado: **109 tests pasados, 0 fallidos**.
+
+---
+
+## Sistema de Entrada — Joystick / Botonera / Teclado USB
+
+El módulo `Assets/Scripts/Input/` provee una **capa de abstracción de entrada completamente configurable** que soporta simultáneamente:
+
+| Dispositivo | Clase | Descripción |
+|-------------|-------|-------------|
+| Teclado USB | `KeyboardInputProvider` | Mapea teclas `ConsoleKey` a acciones |
+| Joystick / Botonera HID | `JoystickInputProvider` | Mapea botones (índice 0-N) a acciones |
+| Cualquier otro | `IInputProvider` | Implementar la interfaz para nuevo dispositivo |
+
+### Acciones disponibles (`SlotAction`)
+
+| Valor | Acción | Tecla USB por defecto | Botón joystick por defecto |
+|-------|--------|-----------------------|---------------------------|
+| 1 | **Spin** | `Space` / `Enter` | Botón 0 |
+| 2 | **MaxBet** | `M` | Botón 1 |
+| 3 | **BetIncrease** | `↑` | Botón 2 |
+| 4 | **BetDecrease** | `↓` | Botón 3 |
+| 5 | **LinesIncrease** | `→` | Botón 4 |
+| 6 | **LinesDecrease** | `←` | Botón 5 |
+| 7 | **Cashout** | `C` | Botón 6 |
+| 8 | **AcknowledgeResult** | `Escape` / `A` | Botón 7 |
+| 9 | **OperatorMenu** | `F10` | Botón 9 |
+| 10 | **RepeatBet** | `R` | Botón 8 |
+
+### Configuración de bindings (config.json)
+
+Los bindings se definen en la sección `input` de `Assets/config.json`:
+
+```json
+"input": {
+  "keyboard": {
+    "enabled": true,
+    "bindings": {
+      "Spacebar": 1,   // Spin
+      "Enter":    1,   // Spin (tecla alternativa)
+      "C":        7    // Cashout
+    }
+  },
+  "joystick": {
+    "enabled": true,
+    "bindings": {
+      "0": 1,   // Botón 0 → Spin
+      "6": 7    // Botón 6 → Cashout
+    }
+  }
+}
+```
+
+### Uso en Unity
+
+```csharp
+// 1. Crear proveedores
+var keyboard = new KeyboardInputProvider();
+var joystick = new JoystickInputProvider("USB Button Panel");
+
+// 2. Configurar InputManager
+var inputManager = new InputManager();
+inputManager.RegisterProvider(keyboard);
+inputManager.RegisterProvider(joystick);
+inputManager.ConnectUI(mainGameUI); // conecta al UI
+
+// 3. En Update() de Unity, notificar botones del joystick
+void Update()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        SlotAction a = joystick.NotifyButtonState(i, Input.GetButton("Joystick1Button" + i));
+        if (a != SlotAction.None)
+            inputManager.DispatchAction(a, joystick);
+    }
+    // El teclado se procesa automáticamente en inputManager.Update()
+    inputManager.Update();
+}
+```
+
+### Añadir un nuevo dispositivo (botonera propietaria)
+
+1. Crear clase que implemente `IInputProvider`
+2. Sobrescribir `Poll()` para retornar acciones detectadas
+3. Registrar con `inputManager.RegisterProvider(miDispositivo)`
 
 ---
 

@@ -62,5 +62,44 @@
     "wildSymbolEnabled": true,
     "scatterSymbolEnabled": true,
     "multiplierEnabled": true
+  },
+  "input": {
+    "_comment": "Input device configuration. Bindings map a key/button to a SlotAction.",
+    "_actions": "None=0 Spin=1 MaxBet=2 BetIncrease=3 BetDecrease=4 LinesIncrease=5 LinesDecrease=6 Cashout=7 AcknowledgeResult=8 OperatorMenu=9 RepeatBet=10",
+    "keyboard": {
+      "enabled": true,
+      "_comment": "Key names match System.ConsoleKey enum values (e.g. Spacebar, Enter, UpArrow).",
+      "bindings": {
+        "Spacebar":   1,
+        "Enter":      1,
+        "UpArrow":    3,
+        "DownArrow":  4,
+        "M":          2,
+        "RightArrow": 5,
+        "LeftArrow":  6,
+        "C":          7,
+        "Escape":     8,
+        "A":          8,
+        "R":          10,
+        "F10":        9
+      }
+    },
+    "joystick": {
+      "enabled": true,
+      "_comment": "Button indices match the physical button number on the USB HID device (0-based).",
+      "_panel_labels": "0=SPIN 1=MAX_BET 2=BET+ 3=BET- 4=LINES+ 5=LINES- 6=CASHOUT 7=COLLECT 8=REPEAT 9=OPERATOR",
+      "bindings": {
+        "0": 1,
+        "1": 2,
+        "2": 3,
+        "3": 4,
+        "4": 5,
+        "5": 6,
+        "6": 7,
+        "7": 8,
+        "8": 10,
+        "9": 9
+      }
+    }
   }
 }

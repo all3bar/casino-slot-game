@@ -45,6 +45,12 @@
     <Compile Include="../Assets/Scripts/Features/JackpotManager.cs" />
     <Compile Include="../Assets/Scripts/UI/AnimationController.cs" />
     <Compile Include="../Assets/Scripts/UI/PaytableUI.cs" />
+    <Compile Include="../Assets/Scripts/UI/MainGameUI.cs" />
+    <Compile Include="../Assets/Scripts/Input/SlotAction.cs" />
+    <Compile Include="../Assets/Scripts/Input/IInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/KeyboardInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/JoystickInputProvider.cs" />
+    <Compile Include="../Assets/Scripts/Input/InputManager.cs" />
   </ItemGroup>
 
 </Project>
