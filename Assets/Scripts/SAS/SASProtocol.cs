@@ -61,10 +61,13 @@ namespace CasinoSlot.SAS
             byte[] dataWithoutCrc = new byte[message.Length - 2];
             Array.Copy(message, dataWithoutCrc, dataWithoutCrc.Length);
 
-            ushort computedCrc = ComputeCRC(dataWithoutCrc);
             ushort receivedCrc = (ushort)(message[message.Length - 2] | (message[message.Length - 1] << 8));
+            ushort computedCrc = ComputeCRC(dataWithoutCrc);
+            if (computedCrc == receivedCrc) return true;
 
-            return computedCrc == receivedCrc;
+            // SAS 6.0: If address had wakeup bit (bit 7) set on wire, retry with bit 7 cleared
+            dataWithoutCrc[0] = (byte)(dataWithoutCrc[0] & 0x7F);
+            return ComputeCRC(dataWithoutCrc) == receivedCrc;
         }
 
         /// <summary>
@@ -104,7 +107,7 @@ namespace CasinoSlot.SAS
             if (rawBytes == null || rawBytes.Length < 3) return false;
             if (!ValidateCRC(rawBytes)) return false;
 
-            address = rawBytes[0];
+            address = (byte)(rawBytes[0] & 0x7F);
             command = rawBytes[1];
             payload = new byte[rawBytes.Length - 4]; // minus address, command, crc-l, crc-h
             if (payload.Length > 0)

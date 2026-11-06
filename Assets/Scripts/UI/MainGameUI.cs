@@ -90,6 +90,7 @@ namespace CasinoSlot.UI
             if (_jackpotManager != null)
                 _jackpotManager.JackpotUpdated += OnJackpotUpdated;
 
+            OnGameStateChanged(GameState.Idle, _gameManager.State);
             RefreshDisplay();
         }
 

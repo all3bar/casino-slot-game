@@ -32,6 +32,8 @@ namespace CasinoSlot.SAS
         private readonly SASMeterManager _sasMeterManager;
         private readonly EventLogger _eventLogger;
 
+        private readonly SASExceptionManager _exceptionManager;
+
         // Last accepted bill info
         private byte _lastBillDenomination;
         private byte _lastBillCountry = 0x00; // USA
@@ -43,14 +45,37 @@ namespace CasinoSlot.SAS
             MachineIdentity identity,
             MeterManager meters,
             GameManager gameManager,
-            EventLogger eventLogger)
+            EventLogger eventLogger,
+            SASExceptionManager exceptionManager = null)
         {
             _identity = identity;
             _meters = meters;
             _gameManager = gameManager;
             _eventLogger = eventLogger;
+            _exceptionManager = exceptionManager ?? new SASExceptionManager();
             _protocol = new SASProtocol(identity.SASAddress);
             _sasMeterManager = new SASMeterManager(meters);
+        }
+
+        /// <summary>Gets the exception manager.</summary>
+        public SASExceptionManager ExceptionManager => _exceptionManager;
+
+        /// <summary>
+        /// Handles a 1-byte SAS General Poll (GP).
+        /// Returns 1-byte exception code if an exception is pending, or null.
+        /// </summary>
+        public byte[] HandleGeneralPoll(byte pollByte)
+        {
+            byte addr = (byte)(pollByte & 0x7F);
+            if (addr != _identity.SASAddress && addr != SASConstants.BroadcastAddress) return null;
+
+            var ex = _exceptionManager.DequeueException();
+            if (ex != null)
+            {
+                _eventLogger.Log(EventType.SASException, $"SAS GP Exception Response: 0x{ex.Code:X2} ({ex.Description})");
+                return new byte[] { ex.Code };
+            }
+            return null;
         }
 
         /// <summary>

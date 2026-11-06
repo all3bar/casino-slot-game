@@ -1,0 +1,436 @@
+[AuthAutoInterCB]
+Checked=1
+[IncludeAddressCB]
+Checked=0
+[AddressingModeRB]
+ItemIndex=0
+[ComponentIndexEdit]
+Text=0123456789
+[ComponentNameEdit]
+Text=0123456789
+[Label63]
+Caption=Component Index
+[Label64]
+Caption=Compnent Name
+[IncludeAuthCB]
+Checked=0
+[AuthenticationMethodCB]
+ItemIndex=0
+[SeedEdit]
+Text=1122334455
+[OffsetEdit]
+Text=66778899
+[Label65]
+Caption=Authentication Method
+[Label66]
+Caption=Seed
+[Label67]
+Caption=Offset
+[ActionCB]
+ItemIndex=0
+[Label62]
+Caption=Action
+[RNGSeedCB]
+Checked=0
+[TestLab]
+Caption=TestLab
+[Label61]
+Caption=Total Tabs
+[Label60]
+Caption=   
+[Label59]
+Caption=   
+[Label58]
+Caption=   
+[Label57]
+Caption=   
+[Label56]
+Caption=   
+[Label55]
+Caption=   
+[Label54]
+Caption=   
+[Label53]
+Caption=   
+[Label52]
+Caption=   
+[Label47]
+Caption=Game 2
+[RNGPayLabel1]
+Caption=
+[Label48]
+Caption=Game 1
+[Label46]
+Caption=Wins
+[Label45]
+Caption=
+[Label44]
+Caption=
+[Label43]
+Caption=
+[Label42]
+Caption=
+[Label41]
+Caption=
+[Label40]
+Caption=
+[Label39]
+Caption=
+[Label38]
+Caption=
+[Label37]
+Caption=
+[Label35]
+Caption=9 Lines 5 coins 
+[Label13]
+Caption=9 Lines 4 coins 
+[Label12]
+Caption=9 Lines 3 coins 
+[Label11]
+Caption=9 Lines 2 coins
+[Label10]
+Caption=9 Lines 1 coin 
+[Label9]
+Caption=7 Lines 1 coin 
+[Label8]
+Caption=5 Lines 1 coin 
+[Label2]
+Caption=3 Lines 1 coin 
+[PullTabLabel0]
+Caption=1 Line 1 coin 
+[RNGPayLabel]
+Caption=
+[PayLabel]
+Caption=Pay for this sequence =
+[DebitLine4CB]
+Checked=0
+[DebitLine3CB]
+Checked=0
+[DebitLine2CB]
+Checked=0
+[DebitLine1CB]
+Checked=0
+[InHouse4CB]
+Checked=0
+[InHouse3CB]
+Checked=0
+[InHouse2CB]
+Checked=0
+[InHouse1CB]
+Checked=0
+[Address2CB]
+Checked=0
+[Address1CB]
+Checked=0
+[LocationCB]
+Checked=0
+[TransReceiptCB]
+ItemIndex=-1
+[Label50]
+Caption=Edit Transaction Receipt Data Fields
+[TransferFlag5]
+Checked=0
+[TransferFlag3]
+Checked=0
+[TransIDError]
+Checked=0
+[AutoIncTID]
+Checked=0
+[ZeroRegKey]
+Checked=0
+[AppendTRID]
+Checked=0
+[TransIDAppend]
+Text=0
+[AutoInterrogateCB]
+Checked=1
+[TransIndexEdit]
+Text=00
+[TotalDebitCB]
+Checked=0
+[TransactionFeeCB]
+Checked=0
+[ATMCardCB]
+Checked=0
+[AccountBalanceCB]
+Checked=0
+[PatronAcctCB]
+Checked=0
+[PatronNameCB]
+Checked=0
+[DateTimeCB]
+Checked=0
+[TransSDCB]
+Checked=0
+[RecieptDataCB]
+ItemIndex=-1
+[AFTPoolIDEdit]
+Text=0c00
+[ExpirationEdit]
+Text=05302003
+[TransactionIDEdit]
+Text=Test Transaction
+[TransferFlag7]
+Checked=0
+[TransferFlag6]
+Checked=0
+[TransferFlag2]
+Checked=0
+[TransferFlag1]
+Checked=0
+[TransferFlag0]
+Checked=0
+[NonRestrictedEdit]
+Text=0000000000
+[RestrictedEdit]
+Text=0000000000
+[CashableEdit]
+Text=0000000000
+[TransferTypeCB]
+ItemIndex=0
+[TransferCodeCB]
+ItemIndex=0
+[Label49]
+Caption=Edit Reciept Data:
+[TransIndexLabel]
+Caption=Trans Index
+[TransactionIDLabel]
+Caption=Transaction ID
+[NonRestrictedLabel]
+Caption=Non Restricted Amount
+[RestrictedLabel]
+Caption=Restricted Amount
+[CashableLabel]
+Caption=Cashable Amount
+[ExpirationLabel]
+Caption=Expiration
+[PoolIDLabel]
+Caption=Pool ID
+[AutoRegisterCB]
+Checked=1
+[AFTPOSIDEdit]
+Text=44332211
+[AFTRegCodeComboBox]
+ItemIndex=0
+[AFTRegKeyEdit]
+Text=0102030405060708091011121314151617181920
+[AFTAssetEdit]
+Text=777
+[POSIDLabel]
+Caption=POSID
+[RegKeyLabel]
+Caption=Reg. Key
+[AssetLabel]
+Caption=Asset #
+[RegCodeLabel]
+Caption=Reg. Code
+[LockTimeoutEdit]
+Text=500
+[LockCondition4]
+Checked=0
+[LockCondition3]
+Checked=0
+[LockCondition2]
+Checked=0
+[LockCondition1]
+Checked=0
+[LockCodeCB]
+ItemIndex=0
+[LockTimeoutLabel]
+Caption=Lock Timeout
+[LockCodeLabel]
+Caption=Lock Code
+[ACKCB]
+Checked=0
+[ComboBox9]
+ItemIndex=3
+[ComboBox8]
+ItemIndex=-1
+[EFTEdit]
+Text=00000005
+[Garble]
+Checked=0
+[BreakEFT]
+Checked=0
+[EFTStat]
+Caption=EFTStat
+[IncProgCB]
+Checked=0
+[Do80]
+Checked=1
+[DispBroad]
+Checked=0
+[ProgRepeat]
+Checked=0
+[Do86]
+Checked=0
+[In]
+Caption=Increment amt.
+[Label14]
+Caption=Levels
+[Label1]
+Caption=3 second(s)
+[Label34]
+Caption=Broadcast Interval
+[Label36]
+Caption=Group= 1
+[MonitorMeter]
+Checked=0
+[MonitoredMeterBytes]
+ItemIndex=4
+[MonitoredMeterPos]
+ItemIndex=2
+[MonitoredMeterCmd]
+ItemIndex=17
+[Label31]
+Caption=This feature only works with scripting
+[Label30]
+Caption=0
+[Label29]
+Caption=Times Meter Changed = 
+[Label28]
+Caption=How Many Bytes
+[Label27]
+Caption=Position
+[Label26]
+Caption=Meter
+[ListBox2]
+ItemIndex=-1
+[ListBox1]
+ItemIndex=-1
+[Scripting]
+Checked=0
+[UseAFT]
+Checked=0
+[PoolIDEdit]
+Text=0000
+[RestrictedExpirationEdit]
+Text=00000000
+[Label24]
+Caption=Pool ID
+[Label23]
+Caption=Restricted Expiration
+[AutoValReplyBox]
+Checked=1
+[EnhValNumCheckBox]
+Checked=0
+[EnhValidationEdit]
+Text=000000000000000000
+[TransferCodesCB]
+ItemIndex=-1
+[InsertHex]
+Checked=0
+[UseTrans]
+Checked=0
+[TxfrAmt]
+Text=2500
+[Label20]
+Caption=Ticket Amount:
+[Label18]
+Caption=Transfer Codes
+[Label22]
+Caption=Validation Data:
+[InsertGP]
+Checked=0
+[BadTransCode]
+Checked=0
+[BadValNum]
+Checked=0
+[AutoInitCB]
+Checked=0
+[EnhSequenceEdit]
+Text=000000
+[EnhMachineIDEdit]
+Text=000001
+[Label33]
+Caption=Sequence #:
+[Label32]
+Caption=Machine  ID:
+[AutoIncVal]
+Checked=0
+[Edit2]
+Text=01
+[UseValidation]
+Checked=0
+[SysValidationEdit]
+Text=0123456789098765
+[Label21]
+Caption=Validation System ID:
+[Label19]
+Caption=System Validation Number:
+[RadioGroup1]
+ItemIndex=2
+[CheckListBox1]
+ItemIndex=-1
+[SASDenomComboBox]
+ItemIndex=-1
+[Preamble]
+Checked=0
+[EchoIndexCB]
+Checked=0
+[EchoingCB]
+Checked=0
+[TimingCB]
+Checked=0
+[NoEFTACK]
+Checked=0
+[ComboBox4]
+ItemIndex=-1
+[ComboBox7]
+ItemIndex=-1
+[CRCError]
+Checked=0
+[EFTRespond]
+Checked=0
+[Trans0]
+Checked=0
+[Respond51]
+Checked=1
+[CRCErrors]
+Checked=1
+[Disp1F]
+Checked=0
+[ForceEFTACK]
+Checked=0
+[AddCRC]
+Checked=0
+[EditResend]
+Text=80
+[Label25]
+Caption=WU Delay Milliseconds 
+[ComboBox3]
+ItemIndex=-1
+[Label15]
+Caption=0
+[Label51]
+Caption=Bytes Read =
+[Label6]
+Caption=0
+[Label7]
+Caption=Time Outs=
+[WakeUpCheckBox]
+Checked=1
+[NoSync]
+Checked=0
+[NoPhantom]
+Checked=0
+[ShowPhantoms]
+Checked=1
+[CycleAddress]
+Checked=0
+[SASAddress]
+ItemIndex=0
+[TrackBar1]
+Position=200
+[GPlab]
+Caption=GP Interval = 200
+[Label17]
+Caption=Poll up to 
+[Label16]
+Caption=2
+[Label5]
+Caption=2 seconds
+[Label4]
+Caption=Off
+[Label3]
+Caption=40ms
