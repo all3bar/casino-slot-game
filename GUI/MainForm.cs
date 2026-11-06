@@ -190,7 +190,7 @@ namespace CasinoSlot.GUI
             tlpHeader.Controls.Add(_lblComStatus, 2, 0);
             tlpHeader.Controls.Add(_lblJackpot, 3, 0);
 
-            // 2. Main Body TableLayoutPanel (Left: 38% Slot Machine, Right: 62% Hardware & SAS)
+            // 2. Main Body TableLayoutPanel (Left: 42% Slot Machine, Right: 58% Hardware & SAS)
             var tlpMain = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -199,8 +199,8 @@ namespace CasinoSlot.GUI
                 BackColor = Color.FromArgb(18, 20, 26),
                 Padding = new Padding(2)
             };
-            tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 38f));
-            tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 62f));
+            tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 42f));
+            tlpMain.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 58f));
             tlpMain.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             var pnlLeft = new Panel { Dock = DockStyle.Fill };
@@ -237,8 +237,8 @@ namespace CasinoSlot.GUI
                 Padding = new Padding(0)
             };
             tlpLeft.RowStyles.Add(new RowStyle(SizeType.Percent, 100f)); // Row 0: Reels 5x3 Grid
-            tlpLeft.RowStyles.Add(new RowStyle(SizeType.Absolute, 36f));  // Row 1: Status Bar
-            tlpLeft.RowStyles.Add(new RowStyle(SizeType.Absolute, 170f)); // Row 2: Player Controls
+            tlpLeft.RowStyles.Add(new RowStyle(SizeType.Absolute, 40f));  // Row 1: Status Bar
+            tlpLeft.RowStyles.Add(new RowStyle(SizeType.Absolute, 226f)); // Row 2: Player Controls
 
             // Row 0: Reels 5x3 TableLayoutPanel
             _tlpReels = new TableLayoutPanel
@@ -286,16 +286,17 @@ namespace CasinoSlot.GUI
             }
             tlpLeft.Controls.Add(_tlpReels, 0, 0);
 
-            // Row 1: Status Message
+            // Row 1: Status Message (Spacious with top/bottom separation)
             _lblStatus = new Label
             {
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 11.5f, FontStyle.Bold),
+                Font = new Font("Segoe UI", 11f, FontStyle.Bold),
                 ForeColor = Color.Yellow,
                 TextAlign = ContentAlignment.MiddleCenter,
-                BackColor = Color.FromArgb(22, 26, 36),
+                BackColor = Color.FromArgb(24, 28, 40),
+                BorderStyle = BorderStyle.FixedSingle,
                 Text = "Press [SPIN] or [Spacebar] to start",
-                Margin = new Padding(0, 2, 0, 2)
+                Margin = new Padding(2, 4, 2, 6)
             };
             tlpLeft.Controls.Add(_lblStatus, 0, 1);
 
@@ -307,11 +308,11 @@ namespace CasinoSlot.GUI
                 RowCount = 3,
                 BackColor = Color.FromArgb(20, 24, 32),
                 Margin = new Padding(0),
-                Padding = new Padding(4)
+                Padding = new Padding(6, 4, 6, 6)
             };
-            tlpControls.RowStyles.Add(new RowStyle(SizeType.Absolute, 56f)); // Row 0: Displays (Credits, Total Bet, Last Win)
-            tlpControls.RowStyles.Add(new RowStyle(SizeType.Absolute, 42f)); // Row 1: Bet Adjust
-            tlpControls.RowStyles.Add(new RowStyle(SizeType.Absolute, 56f)); // Row 2: Action Buttons
+            tlpControls.RowStyles.Add(new RowStyle(SizeType.Absolute, 70f)); // Row 0: Displays (Credits, Total Bet, Last Win)
+            tlpControls.RowStyles.Add(new RowStyle(SizeType.Absolute, 52f)); // Row 1: Bet Adjust
+            tlpControls.RowStyles.Add(new RowStyle(SizeType.Percent, 100f)); // Row 2: Action Buttons
 
             BuildPlayerControlRows(tlpControls);
             tlpLeft.Controls.Add(tlpControls, 0, 2);
@@ -327,38 +328,99 @@ namespace CasinoSlot.GUI
                 Dock = DockStyle.Fill,
                 ColumnCount = 3,
                 RowCount = 1,
-                Margin = new Padding(0)
+                Margin = new Padding(0, 0, 0, 4)
             };
-            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3f));
-            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3f));
-            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.4f));
+            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33f));
+            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33f));
+            tlpDisplays.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.34f));
+            tlpDisplays.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             _lblCredits = CreateDisplayCell(tlpDisplays, "CREDITS", "1,000", Color.Cyan, 0);
             _lblTotalBet = CreateDisplayCell(tlpDisplays, "TOTAL BET", "20", Color.Orange, 1);
             _lblWin = CreateDisplayCell(tlpDisplays, "LAST WIN", "0", Color.LightGreen, 2);
             parent.Controls.Add(tlpDisplays, 0, 0);
 
-            // Row 1: Bet Adjustments
-            var pnlAdjust = new FlowLayoutPanel
+            // Row 1: Bet Adjustments (2-Column Balanced Layout)
+            var tlpAdjust = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(2, 4, 2, 0),
-                WrapContents = false,
-                Margin = new Padding(0)
+                ColumnCount = 2,
+                RowCount = 1,
+                Margin = new Padding(0, 0, 0, 4),
+                Padding = new Padding(0),
+                BackColor = Color.FromArgb(24, 28, 38)
             };
+            tlpAdjust.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            tlpAdjust.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            tlpAdjust.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
-            var lblBetTag = new Label { Text = "Line Bet:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), AutoSize = true, Margin = new Padding(4, 7, 3, 0), ForeColor = Color.LightGray };
+            // Line Bet Stepper
+            var pnlBet = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Margin = new Padding(2),
+                Padding = new Padding(4, 8, 4, 4)
+            };
+            var lblBetTag = new Label
+            {
+                Text = "Line Bet:",
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                AutoSize = true,
+                ForeColor = Color.Gainsboro,
+                Margin = new Padding(2, 6, 4, 0)
+            };
             _btnBetMinus = CreateAdjustButton("▼", (s, e) => ChangeBet(-1));
-            _lblBetPerLine = new Label { Text = "1", Font = new Font("Segoe UI", 12.5f, FontStyle.Bold), Size = new Size(34, 28), TextAlign = ContentAlignment.MiddleCenter, Margin = new Padding(2, 3, 2, 0) };
+            _lblBetPerLine = new Label
+            {
+                Text = "1",
+                Font = new Font("Segoe UI", 12f, FontStyle.Bold),
+                Size = new Size(36, 28),
+                TextAlign = ContentAlignment.MiddleCenter,
+                BackColor = Color.FromArgb(14, 16, 22),
+                ForeColor = Color.Gold,
+                BorderStyle = BorderStyle.FixedSingle,
+                Margin = new Padding(2, 1, 2, 0)
+            };
             _btnBetPlus = CreateAdjustButton("▲", (s, e) => ChangeBet(+1));
+            pnlBet.Controls.AddRange(new Control[] { lblBetTag, _btnBetMinus, _lblBetPerLine, _btnBetPlus });
 
-            var lblLinesTag = new Label { Text = "Lines:", Font = new Font("Segoe UI", 10f, FontStyle.Bold), AutoSize = true, Margin = new Padding(12, 7, 3, 0), ForeColor = Color.LightGray };
+            // Lines Stepper
+            var pnlLines = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                FlowDirection = FlowDirection.LeftToRight,
+                WrapContents = false,
+                Margin = new Padding(2),
+                Padding = new Padding(4, 8, 4, 4)
+            };
+            var lblLinesTag = new Label
+            {
+                Text = "Lines:",
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                AutoSize = true,
+                ForeColor = Color.Gainsboro,
+                Margin = new Padding(4, 6, 4, 0)
+            };
             _btnLinesMinus = CreateAdjustButton("▼", (s, e) => ChangeLines(-1));
-            _lblActiveLines = new Label { Text = "20", Font = new Font("Segoe UI", 12.5f, FontStyle.Bold), Size = new Size(34, 28), TextAlign = ContentAlignment.MiddleCenter, Margin = new Padding(2, 3, 2, 0) };
+            _lblActiveLines = new Label
+            {
+                Text = "20",
+                Font = new Font("Segoe UI", 12f, FontStyle.Bold),
+                Size = new Size(36, 28),
+                TextAlign = ContentAlignment.MiddleCenter,
+                BackColor = Color.FromArgb(14, 16, 22),
+                ForeColor = Color.LightGreen,
+                BorderStyle = BorderStyle.FixedSingle,
+                Margin = new Padding(2, 1, 2, 0)
+            };
             _btnLinesPlus = CreateAdjustButton("▲", (s, e) => ChangeLines(+1));
+            pnlLines.Controls.AddRange(new Control[] { lblLinesTag, _btnLinesMinus, _lblActiveLines, _btnLinesPlus });
 
-            pnlAdjust.Controls.AddRange(new Control[] { lblBetTag, _btnBetMinus, _lblBetPerLine, _btnBetPlus, lblLinesTag, _btnLinesMinus, _lblActiveLines, _btnLinesPlus });
-            parent.Controls.Add(pnlAdjust, 0, 1);
+            tlpAdjust.Controls.Add(pnlBet, 0, 0);
+            tlpAdjust.Controls.Add(pnlLines, 1, 0);
+            parent.Controls.Add(tlpAdjust, 0, 1);
 
             // Row 2: Action Buttons (Cashout, Max Bet, Spin)
             var tlpButtons = new TableLayoutPanel
@@ -366,22 +428,26 @@ namespace CasinoSlot.GUI
                 Dock = DockStyle.Fill,
                 ColumnCount = 3,
                 RowCount = 1,
-                Margin = new Padding(0)
+                Margin = new Padding(0, 2, 0, 2)
             };
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 26f));
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 26f));
-            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 48f));
+            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27f));
+            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 27f));
+            tlpButtons.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 46f));
+            tlpButtons.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             _btnCashout = new Button
             {
                 Text = "CASHOUT (C)",
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 Dock = DockStyle.Fill,
-                Margin = new Padding(2),
-                BackColor = Color.FromArgb(145, 42, 42),
+                Margin = new Padding(2, 3, 3, 4),
+                BackColor = Color.FromArgb(150, 42, 42),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
+            _btnCashout.FlatAppearance.BorderSize = 1;
+            _btnCashout.FlatAppearance.BorderColor = Color.FromArgb(200, 80, 80);
             _btnCashout.Click += (s, e) => OnCashoutClicked();
 
             _btnMaxBet = new Button
@@ -389,23 +455,29 @@ namespace CasinoSlot.GUI
                 Text = "MAX BET (M)",
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 Dock = DockStyle.Fill,
-                Margin = new Padding(2),
+                Margin = new Padding(3, 3, 3, 4),
                 BackColor = Color.FromArgb(185, 110, 20),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
+            _btnMaxBet.FlatAppearance.BorderSize = 1;
+            _btnMaxBet.FlatAppearance.BorderColor = Color.FromArgb(235, 150, 50);
             _btnMaxBet.Click += (s, e) => OnMaxBetClicked();
 
             _btnSpin = new Button
             {
                 Text = "🎰 SPIN (Space)",
-                Font = new Font("Segoe UI", 12.5f, FontStyle.Bold),
+                Font = new Font("Segoe UI", 13f, FontStyle.Bold),
                 Dock = DockStyle.Fill,
-                Margin = new Padding(2),
+                Margin = new Padding(3, 3, 2, 4),
                 BackColor = Color.FromArgb(32, 145, 62),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Cursor = Cursors.Hand
             };
+            _btnSpin.FlatAppearance.BorderSize = 1;
+            _btnSpin.FlatAppearance.BorderColor = Color.FromArgb(60, 200, 100);
             _btnSpin.Click += (s, e) => ExecuteSpinAction();
 
             tlpButtons.Controls.Add(_btnCashout, 0, 0);
@@ -419,25 +491,26 @@ namespace CasinoSlot.GUI
             var pnl = new Panel
             {
                 Dock = DockStyle.Fill,
-                Margin = new Padding(2),
+                Margin = new Padding(3),
                 BackColor = Color.FromArgb(28, 32, 44),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                Padding = new Padding(2)
             };
 
             var lblTag = new Label
             {
                 Text = title,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(180, 190, 210),
+                ForeColor = Color.FromArgb(170, 185, 210),
                 Dock = DockStyle.Top,
-                Height = 16,
+                Height = 18,
                 TextAlign = ContentAlignment.MiddleCenter
             };
 
             var lblVal = new Label
             {
                 Text = initialValue,
-                Font = new Font("Segoe UI", 15f, FontStyle.Bold),
+                Font = new Font("Segoe UI", 15.5f, FontStyle.Bold),
                 ForeColor = valColor,
                 Dock = DockStyle.Fill,
                 TextAlign = ContentAlignment.MiddleCenter
@@ -460,8 +533,11 @@ namespace CasinoSlot.GUI
                 BackColor = Color.FromArgb(45, 52, 70),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Margin = new Padding(2, 3, 2, 0)
+                Margin = new Padding(1, 1, 1, 0),
+                Cursor = Cursors.Hand
             };
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = Color.FromArgb(70, 80, 105);
             btn.Click += onClick;
             return btn;
         }
