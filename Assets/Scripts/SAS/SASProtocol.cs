@@ -56,7 +56,7 @@ namespace CasinoSlot.SAS
         /// <returns>True if CRC is valid.</returns>
         public static bool ValidateCRC(byte[] message)
         {
-            if (message == null || message.Length < 3) return false;
+            if (message == null || message.Length < 4) return false;
 
             byte[] dataWithoutCrc = new byte[message.Length - 2];
             Array.Copy(message, dataWithoutCrc, dataWithoutCrc.Length);
@@ -104,7 +104,7 @@ namespace CasinoSlot.SAS
             command = 0;
             payload = new byte[0];
 
-            if (rawBytes == null || rawBytes.Length < 3) return false;
+            if (rawBytes == null || rawBytes.Length < 4) return false;
             if (!ValidateCRC(rawBytes)) return false;
 
             address = (byte)(rawBytes[0] & 0x7F);

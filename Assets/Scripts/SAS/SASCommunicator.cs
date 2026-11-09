@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using CasinoSlot.Accounting;
 using CasinoSlot.Core;
 
@@ -62,12 +63,14 @@ namespace CasinoSlot.SAS
 
         /// <summary>
         /// Handles a 1-byte SAS General Poll (GP).
-        /// Returns 1-byte exception code if an exception is pending, or null.
+        /// Returns 1-byte exception code if an exception is pending, or 0x00 (No Activity) to keep connection Online.
+        /// Global Sync Poll 0x80 returns null (no response per SAS specification).
         /// </summary>
         public byte[] HandleGeneralPoll(byte pollByte)
         {
             byte addr = (byte)(pollByte & 0x7F);
-            if (addr != _identity.SASAddress && addr != SASConstants.BroadcastAddress) return null;
+            // Global Sync Poll (0x80) or polls not matching our SAS Address: do not respond
+            if (addr != _identity.SASAddress) return null;
 
             var ex = _exceptionManager.DequeueException();
             if (ex != null)
@@ -75,7 +78,9 @@ namespace CasinoSlot.SAS
                 _eventLogger.Log(EventType.SASException, $"SAS GP Exception Response: 0x{ex.Code:X2} ({ex.Description})");
                 return new byte[] { ex.Code };
             }
-            return null;
+
+            // Standard SAS 6.02: Return 0x00 (No Activity) so the Host verifies EGM is Online
+            return new byte[] { 0x00 };
         }
 
         /// <summary>
@@ -103,13 +108,17 @@ namespace CasinoSlot.SAS
                 SASCommandCodes.DisableBillAcceptor  => HandleDisableBillAcceptor(),
                 SASCommandCodes.EnableGamePlay       => HandleEnableGamePlay(),
                 SASCommandCodes.DisableGamePlay      => HandleDisableGamePlay(),
-                SASCommandCodes.SendCurrentCredits   => HandleSendCurrentCredits(),
-                SASCommandCodes.SendEnabledGameNumbers => HandleSendEnabledGameNumbers(),
-                SASCommandCodes.SendSelectedGameNumber => HandleSendSelectedGameNumber(),
-                SASCommandCodes.SendGamingMachineId  => HandleSendGamingMachineId(),
+                0x0F                                 => HandleSendMeters10To15(),         // LP0F Core Meters
+                0x1A                                 => HandleSendCurrentCredits(),       // LP1A Current Credits
+                SASCommandCodes.SendCurrentCredits   => HandleSendCurrentCredits(),       // 0x2E
+                0x1F                                 => HandleSendMachineIdAndInfo(),     // LP1F Machine ID & Config
+                0x51                                 => HandleSendNumberOfGames(),        // LP51 Games Implemented
+                SASCommandCodes.SendSelectedGameNumber => HandleSendSelectedGameNumber(), // 0x52
+                SASCommandCodes.SendGamingMachineId  => HandleSendGamingMachineId(),      // 0x53
+                0x54                                 => HandleSendSasVersionAndSerial(),  // LP54 SAS Version & Serial
+                0x55                                 => HandleSendSelectedGameNumber(),   // LP55 Selected Game
+                0x7E                                 => HandleSendDateTime(),             // LP7E Machine Date & Time
                 SASCommandCodes.SendLastAcceptedBill => HandleSendLastAcceptedBill(),
-                SASCommandCodes.SendTotalCoinIn      => HandleSendTotalCoinIn(),
-                SASCommandCodes.SendTotalCoinOut     => HandleSendTotalCoinOut(),
                 SASCommandCodes.SendTotalDrop        => HandleSendTotalDrop(),
                 SASCommandCodes.SendTotalJackpot     => HandleSendTotalJackpot(),
                 SASCommandCodes.SendGamesPlayed      => HandleSendGamesPlayed(),
@@ -237,6 +246,78 @@ namespace CasinoSlot.SAS
         private byte[] HandleSendGameMachineMeters()
         {
             return _sasMeterManager.BuildAllMetersResponse(_protocol);
+        }
+
+        private byte[] HandleSendSasVersionAndSerial()
+        {
+            // LP54: [length] [SAS Version 3B ASCII] [Serial Number ASCII]
+            string version = "602";
+            string serial = _identity.SerialNumber ?? "SN000001";
+            byte[] verBytes = Encoding.ASCII.GetBytes(version);
+            byte[] serBytes = Encoding.ASCII.GetBytes(serial);
+
+            byte length = (byte)(verBytes.Length + serBytes.Length);
+            byte[] data = new byte[1 + length];
+            data[0] = length;
+            Array.Copy(verBytes, 0, data, 1, verBytes.Length);
+            Array.Copy(serBytes, 0, data, 1 + verBytes.Length, serBytes.Length);
+
+            return _protocol.BuildResponse(0x54, data);
+        }
+
+        private byte[] HandleSendMachineIdAndInfo()
+        {
+            // LP1F: GameId(2B), AddlId(3B), Denom(1B), MaxBet(1B), ProgGroup(3B), PaytableId(6B), TheoreticalRtp(4B)
+            // Total 20 data bytes (+ addr + cmd + 2B crc = 24 bytes)
+            byte[] data = new byte[20];
+            byte[] gid = SASProtocol.EncodeASCII(_identity.GameId ?? "01", 2);
+            byte[] aid = SASProtocol.EncodeASCII(_identity.AssetNumber ?? "001", 3);
+            Array.Copy(gid, 0, data, 0, 2);
+            Array.Copy(aid, 0, data, 2, 3);
+            data[5] = 0x01; // Denomination code: 0x01 = 1 cent
+            data[6] = 10;   // Max bet
+            byte[] paytable = SASProtocol.EncodeASCII("STD001", 6);
+            Array.Copy(paytable, 0, data, 10, 6);
+            byte[] rtp = Encoding.ASCII.GetBytes("9600"); // 96.00%
+            Array.Copy(rtp, 0, data, 16, 4);
+
+            return _protocol.BuildResponse(0x1F, data);
+        }
+
+        private byte[] HandleSendNumberOfGames()
+        {
+            // LP51: 2-byte BCD count of implemented games = 0x00, 0x01 (1 game)
+            byte[] data = { 0x00, 0x01 };
+            return _protocol.BuildResponse(0x51, data);
+        }
+
+        private byte[] HandleSendMeters10To15()
+        {
+            // LP0F: 6 BCD-4 meters: Canceled, CoinIn, CoinOut, Drop, Jackpot, GamesPlayed (24 bytes)
+            byte[] data = new byte[24];
+            Array.Copy(SASProtocol.EncodeBCD4(0), 0, data, 0, 4);                     // Canceled
+            Array.Copy(SASProtocol.EncodeBCD4(_meters.TotalCoinIn), 0, data, 4, 4);   // Coin In
+            Array.Copy(SASProtocol.EncodeBCD4(_meters.TotalCoinOut), 0, data, 8, 4);  // Coin Out
+            Array.Copy(SASProtocol.EncodeBCD4(_meters.TotalDrop), 0, data, 12, 4);    // Drop
+            Array.Copy(SASProtocol.EncodeBCD4(_meters.TotalJackpot), 0, data, 16, 4); // Jackpot
+            Array.Copy(SASProtocol.EncodeBCD4(_meters.GamesPlayed), 0, data, 20, 4);  // Games Played
+            return _protocol.BuildResponse(0x0F, data);
+        }
+
+        private byte[] HandleSendDateTime()
+        {
+            // LP7E: MM(1B), DD(1B), YYYY(2B), HH(1B), MM(1B), SS(1B) BCD (7 bytes)
+            var now = DateTime.Now;
+            byte[] data = new byte[7];
+            data[0] = (byte)(((now.Month / 10) << 4) | (now.Month % 10));
+            data[1] = (byte)(((now.Day / 10) << 4) | (now.Day % 10));
+            int year = now.Year;
+            data[2] = (byte)((((year / 100) / 10) << 4) | ((year / 100) % 10));
+            data[3] = (byte)((((year % 100) / 10) << 4) | ((year % 100) % 10));
+            data[4] = (byte)(((now.Hour / 10) << 4) | (now.Hour % 10));
+            data[5] = (byte)(((now.Minute / 10) << 4) | (now.Minute % 10));
+            data[6] = (byte)(((now.Second / 10) << 4) | (now.Second % 10));
+            return _protocol.BuildResponse(0x7E, data);
         }
 
         /// <summary>

@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using CasinoSlot.SAS;
 using CasinoSlot.Accounting;
+using CasinoSlot.Core;
 
 namespace CasinoSlot.Tests.SAS
 {
@@ -131,6 +132,104 @@ namespace CasinoSlot.Tests.SAS
         {
             var protocol = new SASProtocol(0); // 0 is invalid, should become 1
             Assert.Equal(1, protocol.MachineAddress);
+        }
+
+        [Fact]
+        public void HandleGeneralPoll_Sync0x80_ReturnsNull()
+        {
+            var identity = new MachineIdentity { SASAddress = 1 };
+            var meters = new MeterManager();
+            var logger = new EventLogger();
+            var game = GameManager.Instance;
+            var proc = new SASCommandProcessor(identity, meters, game, logger);
+
+            // 0x80 is Global Sync Poll: EGM must not respond
+            var resp = proc.HandleGeneralPoll(0x80);
+            Assert.Null(resp);
+        }
+
+        [Fact]
+        public void HandleGeneralPoll_NoException_Returns0x00()
+        {
+            var identity = new MachineIdentity { SASAddress = 1 };
+            var meters = new MeterManager();
+            var logger = new EventLogger();
+            var game = GameManager.Instance;
+            var proc = new SASCommandProcessor(identity, meters, game, logger);
+
+            // 0x81 is General Poll for machine 1: when no exception, return 0x00 (No Activity)
+            var resp = proc.HandleGeneralPoll(0x81);
+            Assert.NotNull(resp);
+            Assert.Single(resp);
+            Assert.Equal(0x00, resp[0]);
+        }
+
+        [Fact]
+        public void HandleGeneralPoll_WithException_ReturnsExceptionCode()
+        {
+            var identity = new MachineIdentity { SASAddress = 1 };
+            var meters = new MeterManager();
+            var logger = new EventLogger();
+            var game = GameManager.Instance;
+            var proc = new SASCommandProcessor(identity, meters, game, logger);
+
+            proc.ExceptionManager.QueueException(SASExceptionCodes.SlotDoorOpened); // 0x11
+            var resp = proc.HandleGeneralPoll(0x81);
+            Assert.NotNull(resp);
+            Assert.Single(resp);
+            Assert.Equal(SASExceptionCodes.SlotDoorOpened, resp[0]);
+
+            // Next GP should return 0x00 (empty queue)
+            var respNext = proc.HandleGeneralPoll(0x81);
+            Assert.NotNull(respNext);
+            Assert.Equal(0x00, respNext[0]);
+        }
+
+        [Fact]
+        public void ProcessMessage_LP54_ReturnsSasVersionAndSerial()
+        {
+            var identity = new MachineIdentity { SASAddress = 1, SerialNumber = "TEST1234" };
+            var meters = new MeterManager();
+            var logger = new EventLogger();
+            var game = GameManager.Instance;
+            var proc = new SASCommandProcessor(identity, meters, game, logger);
+
+            // Send LP54 packet: [0x01, 0x54, CRC-L, CRC-H]
+            var protocol = new SASProtocol(1);
+            var req = protocol.BuildResponse(0x54, null);
+            var resp = proc.ProcessMessage(req);
+
+            Assert.NotNull(resp);
+            Assert.True(SASProtocol.ValidateCRC(resp));
+            Assert.Equal(1, resp[0]);
+            Assert.Equal(0x54, resp[1]);
+            // Length byte at index 2
+            int len = resp[2];
+            Assert.True(len >= 11);
+            string ver = System.Text.Encoding.ASCII.GetString(resp, 3, 3);
+            Assert.Equal("602", ver);
+            string serial = System.Text.Encoding.ASCII.GetString(resp, 6, 8);
+            Assert.Equal("TEST1234", serial);
+        }
+
+        [Fact]
+        public void ProcessMessage_LP1F_ReturnsMachineIdAndInfo()
+        {
+            var identity = new MachineIdentity { SASAddress = 1, GameId = "01", AssetNumber = "001" };
+            var meters = new MeterManager();
+            var logger = new EventLogger();
+            var game = GameManager.Instance;
+            var proc = new SASCommandProcessor(identity, meters, game, logger);
+
+            var protocol = new SASProtocol(1);
+            var req = protocol.BuildResponse(0x1F, null);
+            var resp = proc.ProcessMessage(req);
+
+            Assert.NotNull(resp);
+            Assert.True(SASProtocol.ValidateCRC(resp));
+            Assert.Equal(1, resp[0]);
+            Assert.Equal(0x1F, resp[1]);
+            Assert.Equal(24, resp.Length);
         }
     }
 }

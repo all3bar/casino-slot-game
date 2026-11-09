@@ -124,7 +124,7 @@ namespace CasinoSlot.GUI
 
         private void InitializeComponent()
         {
-            Text = "🎰 Casino Slot Game - SAS 6.0 (COM5) & Hardware GUI Simulator";
+            Text = "🎰 Casino Slot Game - SAS 6.0 & Hardware GUI Simulator";
             Size = new Size(1200, 780);
             MinimumSize = new Size(950, 600);
             StartPosition = FormStartPosition.CenterScreen;
@@ -169,7 +169,7 @@ namespace CasinoSlot.GUI
 
             _lblComStatus = new Label
             {
-                Text = "🔌 COM5: 연결 중...",
+                Text = "🔌 포트: 연결 중...",
                 Font = new Font("Segoe UI", 14f, FontStyle.Bold),
                 ForeColor = Color.Yellow,
                 Dock = DockStyle.Fill,
@@ -218,7 +218,7 @@ namespace CasinoSlot.GUI
             Load += (s, e) =>
             {
                 AdjustReelFonts();
-                ConnectSasPort("COM5");
+                ConnectSasPort(_cbComPort.SelectedItem?.ToString() ?? "COM4");
             };
         }
 
@@ -575,12 +575,18 @@ namespace CasinoSlot.GUI
                 BackColor = Color.FromArgb(30, 34, 46),
                 ForeColor = Color.White
             };
-            _cbComPort.Items.AddRange(new object[] { "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM10" });
-            _cbComPort.SelectedItem = "COM5";
+            var availablePorts = new List<string>(System.IO.Ports.SerialPort.GetPortNames());
+            foreach (var defaultPort in new[] { "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM10" })
+            {
+                if (!availablePorts.Contains(defaultPort))
+                    availablePorts.Add(defaultPort);
+            }
+            _cbComPort.Items.AddRange(availablePorts.ToArray());
+            _cbComPort.SelectedItem = availablePorts.Contains("COM4") ? "COM4" : (availablePorts.Count > 0 ? availablePorts[0] : "COM4");
             _cbComPort.SelectedIndexChanged += (s, e) =>
             {
                 if (_sasSerial.IsOpen)
-                    ConnectSasPort(_cbComPort.SelectedItem?.ToString() ?? "COM5");
+                    ConnectSasPort(_cbComPort.SelectedItem?.ToString() ?? "COM4");
             };
 
             _btnComToggle = new Button
@@ -724,7 +730,7 @@ namespace CasinoSlot.GUI
             }
             else
             {
-                string portName = _cbComPort.SelectedItem?.ToString() ?? "COM5";
+                string portName = _cbComPort.SelectedItem?.ToString() ?? "COM4";
                 ConnectSasPort(portName);
             }
         }
@@ -768,7 +774,7 @@ namespace CasinoSlot.GUI
         {
             try
             {
-                string portName = _sasSerial.PortName ?? _cbComPort.SelectedItem?.ToString() ?? "COM5";
+                string portName = _sasSerial.PortName ?? _cbComPort.SelectedItem?.ToString() ?? "COM4";
                 _gpTimer?.Dispose();
                 _gpTimer = null;
                 _rxBuffer.Clear();
@@ -800,55 +806,69 @@ namespace CasinoSlot.GUI
 
         private void ProcessRxBuffer()
         {
-            // 1-byte arrival: Could be a General Poll (GP) or the start of a Long Poll (LP)
-            if (_rxBuffer.Count == 1)
+            // Process incoming SAS bytes in buffer
+            while (_rxBuffer.Count > 0)
             {
-                _gpTimer?.Dispose();
-                _gpTimer = new System.Threading.Timer(_ =>
+                byte first = _rxBuffer[0];
+
+                // 1. If high bit is set (>= 0x80), this is a 1-byte General Poll or Global Sync Poll
+                if ((first & 0x80) != 0)
                 {
-                    lock (_rxLock)
+                    _rxBuffer.RemoveAt(0);
+
+                    byte addr = (byte)(first & 0x7F);
+                    // If addressed to this machine, reply immediately (within SAS 45ms window)
+                    if (addr == _machineIdentity.SASAddress)
                     {
-                        if (_rxBuffer.Count == 1)
+                        byte[] resp = _sasProcessor.HandleGeneralPoll(first);
+                        if (resp != null && resp.Length > 0)
                         {
-                            byte pollByte = _rxBuffer[0];
-                            _rxBuffer.Clear();
-                            HandleIncomingGeneralPoll(pollByte);
+                            _sasSerial.Send(resp);
+                            if (resp[0] != 0x00)
+                            {
+                                SafeLogEvent($"📡 SAS GP [0x{first:X2}] ➜ 예외 전송: 0x{resp[0]:X2}");
+                            }
                         }
                     }
-                }, null, 15, System.Threading.Timeout.Infinite);
-                return;
-            }
-
-            // >= 3 bytes: Candidate for Long Poll
-            if (_rxBuffer.Count >= 3)
-            {
-                _gpTimer?.Dispose();
-
-                byte[] packetCandidate = _rxBuffer.ToArray();
-                if (SASProtocol.ValidateCRC(packetCandidate))
-                {
-                    _rxBuffer.Clear();
-                    HandleIncomingLongPoll(packetCandidate);
-                    return;
+                    continue;
                 }
 
-                // Buffer safety guard
-                if (_rxBuffer.Count > 128)
+                // 2. If first byte is NOT addressed to this machine, discard it
+                if (first != _machineIdentity.SASAddress && first != SASConstants.BroadcastAddress)
+                {
                     _rxBuffer.RemoveAt(0);
-            }
-        }
+                    continue;
+                }
 
-        private void HandleIncomingGeneralPoll(byte pollByte)
-        {
-            byte addr = (byte)(pollByte & 0x7F);
-            if (addr != _machineIdentity.SASAddress && addr != SASConstants.BroadcastAddress)
-                return;
+                // 3. Candidate for Long Poll (minimum length is 4 bytes: Addr + Cmd + CRC16)
+                bool packetFound = false;
+                for (int len = 4; len <= _rxBuffer.Count; len++)
+                {
+                    byte[] candidate = new byte[len];
+                    _rxBuffer.CopyTo(0, candidate, 0, len);
+                    if (SASProtocol.ValidateCRC(candidate))
+                    {
+                        _rxBuffer.RemoveRange(0, len);
+                        HandleIncomingLongPoll(candidate);
+                        packetFound = true;
+                        break;
+                    }
+                }
 
-            byte[] resp = _sasProcessor.HandleGeneralPoll(pollByte);
-            if (resp != null && resp.Length > 0)
-            {
-                _sasSerial.Send(resp);
-                SafeLogEvent($"📡 SAS GP [0x{pollByte:X2}] ➜ 예외 전송: 0x{resp[0]:X2}");
+                if (packetFound)
+                {
+                    continue;
+                }
+
+                // Prevent buffer overflow if corrupted data is accumulating
+                if (_rxBuffer.Count > 64)
+                {
+                    _rxBuffer.RemoveAt(0);
+                    continue;
+                }
+
+                // Incomplete packet: wait for more bytes
+                break;
             }
         }
 

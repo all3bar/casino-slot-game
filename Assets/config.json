@@ -11,7 +11,7 @@
   "sas": {
     "address": 1,
     "pollingIntervalMs": 20,
-    "portName": "COM5",
+    "portName": "COM4",
     "baudRate": 19200,
     "parity": "None",
     "dataBits": 8,
